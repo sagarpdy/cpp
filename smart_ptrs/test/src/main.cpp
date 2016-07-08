@@ -34,6 +34,15 @@ private:
 };
 
 typedef test_deleter<int> int_deleter;
+
+class foo {
+public:
+	foo() : bar(0) {}
+	void set_bar(int b) {bar = b;}
+	int get_bar() {return bar;}
+private:
+	int bar;
+};
 }
 
 BOOST_AUTO_TEST_CASE(SimpleTest) {
@@ -67,4 +76,17 @@ BOOST_AUTO_TEST_CASE(ResetVerify) {
 	d.set_final_free_count(2);
 	u.reset(new int{20});
 	BOOST_CHECK_EQUAL(d.get_free_count(), 1);
+}
+
+BOOST_AUTO_TEST_CASE(PointerOpsVerify) {
+	sagar::unique_ptr<foo> u(new foo());
+	(*u).set_bar(10);
+	BOOST_CHECK_EQUAL(10, u->get_bar());
+}
+
+BOOST_AUTO_TEST_CASE(BoolTestVerify) {
+	sagar::unique_ptr<int> u{};
+	if (!u) BOOST_CHECK(true);
+	u.reset(new int{0});
+	if (u) BOOST_CHECK(true);
 }
