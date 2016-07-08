@@ -51,6 +51,12 @@ public:
 	operator bool() {
 		return (get() != pointer());
 	}
+
+	unique_ptr<T,D>& operator=(unique_ptr<T,D>& other) {
+		reset(other.release());
+		deleter = other.get_deleter();
+		return *this;
+	}
 private:
 	pointer mP;
 	D deleter;

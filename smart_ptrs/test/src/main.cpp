@@ -13,14 +13,20 @@ public:
 		if ( 0 <= final_free_count) assert(free_count == final_free_count);
 	}
 	void operator()(T* p) {
-		std::cout << "deleting " <<  p << std::endl;
 		d(p);
 		free_count++;
+	}
+
+	test_deleter<T>& operator=(const test_deleter<T>& other) {
+		if ( 0 <= final_free_count) assert(free_count == final_free_count);
+		final_free_count = other.final_free_count;
+		free_count = other.free_count;
 	}
 
 	void set_final_free_count(int fc) {
 		final_free_count = fc;
 	}
+
 	void reset_free_count() {
 		free_count = 0;
 	}
@@ -89,4 +95,14 @@ BOOST_AUTO_TEST_CASE(BoolTestVerify) {
 	if (!u) BOOST_CHECK(true);
 	u.reset(new int{0});
 	if (u) BOOST_CHECK(true);
+}
+
+BOOST_AUTO_TEST_CASE(AssignVerify) {
+	sagar::unique_ptr<int, int_deleter> u{new int{10}};
+	sagar::unique_ptr<int, int_deleter> v{new int{20}};
+	u.get_deleter().set_final_free_count(1);
+	v.get_deleter().set_final_free_count(0);
+	u = v;
+	u.get_deleter().set_final_free_count(1);
+	BOOST_CHECK_EQUAL(20, *u);
 }
